@@ -1,22 +1,16 @@
 from random import randint
 
-# given two arrays x = [x[0],..,x[n - 1]] and y = [y[0],..,y[m - 1]], max_len_subsequence_matrix returns 
-# a (n + 1)X(m + 1) matix c such that, c[i][j] is the lenght of the maximal of a common subsequence in the arrasys 
-# [x[i],..,x[n]] and [y[j],..,y[m]] for 0 <= i <= n - 1 , 0 <= j <= m - 1
-# and for c[n,j] = c[i,m] = 0 for all 1 <= i <= n , 1 <= j <= m
-# The algorithm run in O(nm)
-
-def max_len_subequence_matrix(x, y):
+def max_len_subequence_matrix(sequence_1, sequence_2):
     c = [[]]
-    for i in range(len(x) + 1):
+    for i in range(len(sequence_1) + 1):
         c.append([])
-        for j in range(len(y) + 1):
+        for j in range(len(sequence_2) + 1):
             c[i].append(0)
-    i = len(x) - 1
+    i = len(sequence_1) - 1
     while i >= 0:
-        j = len(y) - 1
+        j = len(sequence_2) - 1
         while j >= 0:
-            if x[i] == y[j]:
+            if sequence_1[i] == sequence_2[j]:
                 c[i][j] = 1 + c[i + 1][j + 1]
             if c[i + 1][j] > c[i][j]:
                 c[i][j] = c[i + 1][j]
@@ -27,48 +21,42 @@ def max_len_subequence_matrix(x, y):
         i -= 1
     return c
 
-# given two arrays x = [x[0],.., x[n-1]] and y = [y[0], .., y[m - 1]] 
-# max_len_ommon_subsequence returns the lenght of a maximal common subsequence
-# in the arrays x and y
-
-def max_len_common_subsequence(x, y):
-    c = max_len_subequence_matrix(x, y)
+def max_len_common_subsequence(sequence_1, sequence_2):
+    c = max_len_subequence_matrix(sequence_1, sequence_2)
     return c[0][0]
 
-# given two arrays x = [x[0],.., x[n-1]] and y = [y[0], .., y[m - 1]] 
-# subsequence_of_len_max returns a common subsequence of maximal lenght among 
-# all common subsequence in x and y
-
-def subsequence_of_len_max(x, y):
-    c = max_len_subequence_matrix(x, y)
+def subsequence_of_len_max(sequence_1, sequence_2):
+    c = max_len_subequence_matrix(sequence_1, sequence_2)
     i = 0
     j = 0
     sub_sequence = []
 
-    while i < len(x) and j < len(y):
+    while i < len(sequence_1) and j < len(sequence_2):
         if c[i][j] == c[i + 1][j]:
             i += 1
         elif c[i][j] == c[i][j + 1]:
             j += 1
         else:
-            sub_sequence.append(x[i])
+            sub_sequence.append(sequence_1[i])
             i += 1
             j += 1
 
     return sub_sequence
 
 def main():
-    x = []
-    y = []
+    sequence_1 = []
+    sequence_2 = []
     for i in range(10):
-        x.append(randint(1, 25))
+        sequence_1.append(randint(1, 25))
     for i in range(8):
-        y.append(randint(1, 25))
+        sequence_2.append(randint(1, 25))
     
-    print(f'x = {x}')
-    print(f'y = {y}')
-    print(f'lenght of one maximal subsequence in x and y is { max_len_common_subsequence(x, y)}')
-    print(f'One common subsequence of maximal lengh is {subsequence_of_len_max(x, y)}')
+    print(f'sequence_1 = {sequence_1}')
+    print(f'sequence_2 = {sequence_2}')
+    print('lenght of one maximal subsequence in sequence_1 and sequence_2 is:')
+    print(max_len_common_subsequence(sequence_1, sequence_2))
+    print('One common subsequence of maximal lengh is:')
+    print(subsequence_of_len_max(sequence_1, sequence_2))
 
 if  __name__ == '__main__':
     main()
