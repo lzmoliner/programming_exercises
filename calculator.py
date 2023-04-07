@@ -23,40 +23,54 @@ class Binary_Tree():
     def value(self, value):
         self.value = value
 
-def string_to_expression(s):
-    number = ''
-    expression = []
-    for letter in s:
-        if letter in ('+', '-', '*', '/', '^', '(', ')'):
-            if len(number) > 0: expression.append(float(number))
-            number = ''
-            expression.append(letter)
-        else:
-            if letter != ' ': number += letter
-    if len(number) > 0 :
-        expression.append(float(number))
-    return expression
 
-def processing_expresion(expression):
-    processeced_expresion = []
-    for i in range(len(expression)):
-        if expression[i] == '(':
-            if i == 0:
-                processeced_expresion.append(1)
-                processeced_expresion.append('*')
-            elif expression[i - 1] not in ('+','-','/','*'):
-                processeced_expresion.append('*')
-        processeced_expresion.append(expression[i])
-    return processeced_expresion
+OPERATIONS = ('+', '-', '*', '/', '^','(', ')')
 
-def calculator(string_expression):
-    expression = string_to_expression(string_expression)
-    expression = processing_expresion(expression)
-    tree = built_data_structure_to_compute(expression)
+def calculator(expression):
+    list_expression = string_to_list(expression)
+    tree = built_binary_tree_to_compute(list_expression)
     result = compute(tree)
     return result
 
-def built_data_structure_to_compute(arithmetric_expression):
+def string_to_list(expression):
+    number = ''
+    list_expression = []
+    for item in expression:
+        if item != ' ':
+            if item in OPERATIONS:
+                include_number(list_expression, number)
+                number = ''
+                include_operation(list_expression, item)
+            else:
+                number += item
+    include_number(list_expression, number)
+    return list_expression
+
+def include_number(list_expression, number):
+    last_element_in_expression = last_element(list_expression) 
+    if len(number) > 0: 
+        if last_element_in_expression == ')':
+            list_expression.append('*')
+        list_expression.append(float(number))
+
+def include_operation(list_expression, operation):
+    last_element_in_expression = last_element(list_expression)
+    if operation == '(':
+        if last_element_in_expression in ('(', ''):
+            list_expression += [1,'*', '(']
+        elif last_element_in_expression in OPERATIONS:
+            list_expression.append('(')
+        else: 
+            list_expression += ['*','(']
+    else:
+        list_expression.append(operation)
+
+def last_element(list):
+    if len(list):
+        return list[len(list) - 1]
+    return ''
+
+def built_binary_tree_to_compute(arithmetric_expression):
     root = None
     last_added = root
     stack = []
@@ -113,9 +127,9 @@ def compute(root):
         return root.value
 
 def main():
-    expresion = input('Enter the expression to compute: ')
-    print(calculator(expresion))
-
+    s = input('Enter the expression to compute: ')
+    result = calculator(s)
+    print(result)
 
 if __name__ == '__main__':
     main()
