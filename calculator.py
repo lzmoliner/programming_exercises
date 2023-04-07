@@ -24,11 +24,10 @@ class Binary_Tree():
         self.value = value
 
 
-OPERATIONS = ('+', '-', '*', '/', '^','(', ')')
+OPERATIONS = ('+', '-', '*', '/','(', ')', '^')
 
 def calculator(expression):
-    list_expression = string_to_list(expression)
-    tree = built_binary_tree_to_compute(list_expression)
+    tree = built_binary_tree(string_to_list(expression))
     result = compute(tree)
     return result
 
@@ -54,33 +53,33 @@ def include_number(list_expression, number):
         list_expression.append(float(number))
 
 def include_operation(list_expression, operation):
-    last_element_in_expression = last_element(list_expression)
+    last_item_inserted = last_element(list_expression)
     if operation == '(':
-        if last_element_in_expression in ('(', ''):
+        if last_item_inserted in ('(', ''):
             list_expression += [1,'*', '(']
-        elif last_element_in_expression in OPERATIONS:
+        elif last_item_inserted in OPERATIONS:
             list_expression.append('(')
         else: 
             list_expression += ['*','(']
     else:
         list_expression.append(operation)
 
-def last_element(list):
-    if len(list):
-        return list[len(list) - 1]
+def last_element(list_expression):
+    if len(list_expression):
+        return list_expression[len(list_expression) - 1]
     return ''
 
-def built_binary_tree_to_compute(arithmetric_expression):
+def built_binary_tree(arithmetric_expression_list):
     root = None
     last_added = root
     stack = []
-    for i in range(0, len(arithmetric_expression)):
-        new_node = Binary_Tree(arithmetric_expression[i])
+    for i in range(0, len(arithmetric_expression_list)):
+        new_node = Binary_Tree(arithmetric_expression_list[i])
         if root == None:
             root = new_node
             last_added = new_node
         else:
-            if arithmetric_expression[i] in ('*','/', '^'):
+            if arithmetric_expression_list[i] in ('*','/', '^'):
                 new_node.left_child = last_added
                 if root == last_added:
                     root = new_node
@@ -89,17 +88,17 @@ def built_binary_tree_to_compute(arithmetric_expression):
                     new_node.parent.right_child = new_node
                 last_added.parent = new_node
                 last_added = new_node
-            elif arithmetric_expression[i] == '+' or arithmetric_expression[i] == '-':
+            elif arithmetric_expression_list[i] == '+' or arithmetric_expression_list[i] == '-':
                 new_node.left_child = root
                 root.parent = new_node
                 root = new_node
                 last_added = new_node
-            elif arithmetric_expression[i] == '(':
+            elif arithmetric_expression_list[i] == '(':
                 stack.append(root)
                 stack.append(last_added)
                 root = None
                 last_added = None
-            elif arithmetric_expression[i] == ')':
+            elif arithmetric_expression_list[i] == ')':
                 last_added = root
                 node = stack.pop()
                 node.right_child = last_added
