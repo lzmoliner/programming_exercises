@@ -107,7 +107,7 @@ def built_binary_tree(arithmetric_expression_list):
             else:
                 last_added.right_child = new_node
                 new_node.parent = last_added
-                if last_added != '^':
+                if last_added.value != '^':
                     last_added = new_node
     return root
 
