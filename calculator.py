@@ -23,11 +23,10 @@ class Binary_Tree():
     def value(self, value):
         self.value = value
 
-
-OPERATIONS = ('+', '-', '*', '/','(', ')', '^', '%', 'log', 'len', 'sqrt', 'sin', 'cos', 'tan')
 BINARY_OPERATIONS = ('+', '-', '*', '/', '^', '%')
 UNITARY_OPERATIONS = ('log', 'len', 'sqrt', 'sin', 'cos', 'tan')
 PARENTHESIS = ('(', ')')
+OPERATIONS = BINARY_OPERATIONS + UNITARY_OPERATIONS + PARENTHESIS
 
 def calculator(expression):
     tree = built_binary_tree(string_to_list(expression))
@@ -72,43 +71,46 @@ def last_element(list_expression):
         return list_expression[len(list_expression) - 1]
     return ''
 
-def built_binary_tree(arithmetric_expression_list):
-    [root, last_added] = [None, None] 
-    stack = []
-    for item in arithmetric_expression_list:
+def built_binary_tree(arithmetric_expression):
+    [root, pivot] = [None, None] 
+    subtrees_stack = []
+    for item in arithmetric_expression:
         new_node = Binary_Tree(item)
         if item in PARENTHESIS:
-            [root, last_added, stack] = resolve_parenthesis(item, stack, root, last_added)
-        elif item in BINARY_OPERATIONS:
-            if item == '+' or item == '-':
-                root = set_left_child(new_node, root)
-                last_added = root
+            if item == '(':
+                [root, pivot, subtrees_stack] = create_subtree(root, pivot, subtrees_stack)
             else:
-                if root == last_added:
+                [root, pivot, subtrees_stack] = conect_subtree(root, pivot, subtrees_stack)
+        elif item in BINARY_OPERATIONS:
+            if item in ('+', '-'):
+                root = set_left_child(new_node, root)
+                pivot = root
+            else:
+                if root == pivot:
                     root = new_node
                 else:
-                    set_right_child(last_added.parent, new_node)
-                last_added = set_left_child(new_node, last_added)
+                    set_right_child(pivot.parent, new_node)
+                pivot = set_left_child(new_node, pivot)
         else:
             if root == None:
-                [root, last_added] = [new_node, new_node]
+                [root, pivot] = [new_node, new_node]
             else:
-                set_right_child(last_added, new_node)
-                if last_added.value != '^': last_added = new_node
+                set_right_child(pivot, new_node)
+                if pivot.value != '^': pivot = new_node
     return root
 
-def resolve_parenthesis(item, stack, root, last_added):
-    if item == '(':
-        stack.append(root)
-        stack.append(last_added)
-        [root, last_added] = [None, None]
-    else:
-        node = stack.pop()
-        node.right_child = root
-        root.parent = node
-        last_added = root
-        root = stack.pop()
-    return [root, last_added, stack]
+def create_subtree(current_root, current_pivot, subtrees_stack):
+    subtrees_stack.append(current_root)
+    subtrees_stack.append(current_pivot)
+    return [None, None, subtrees_stack]
+
+def conect_subtree(current_root, current_pivot, subtrees_stack):
+    node = subtrees_stack.pop()
+    node.right_child = current_root
+    current_root.parent = node
+    new_pivot = current_root
+    new_root = subtrees_stack.pop()
+    return [new_root, new_pivot, subtrees_stack]
 
 def set_left_child(parent, child):
     parent.left_child = child
@@ -137,7 +139,7 @@ def compute(root):
 def main():
     s = input('Enter the expression to compute: ')
     result = calculator(s)
-    print(result)
+    print(result)    
 
 if __name__ == '__main__':
     main()
