@@ -24,7 +24,10 @@ class Binary_Tree():
         self.value = value
 
 
-OPERATIONS = ('+', '-', '*', '/','(', ')', '^')
+OPERATIONS = ('+', '-', '*', '/','(', ')', '^', '%', 'log', 'len', 'sqrt', 'sin', 'cos', 'tan')
+BINARY_OPERATIONS = ('+', '-', '*', '/', '^', '%')
+UNITARY_OPERATIONS = ('log', 'len', 'sqrt', 'sin', 'cos', 'tan')
+PARENTHESIS = ('(', ')')
 
 def calculator(expression):
     tree = built_binary_tree(string_to_list(expression))
@@ -70,46 +73,52 @@ def last_element(list_expression):
     return ''
 
 def built_binary_tree(arithmetric_expression_list):
-    root = None
-    last_added = root
+    [root, last_added] = [None, None] 
     stack = []
-    for i in range(0, len(arithmetric_expression_list)):
-        new_node = Binary_Tree(arithmetric_expression_list[i])
-        if root == None:
-            root = new_node
-            last_added = new_node
-        else:
-            if arithmetric_expression_list[i] in ('*','/', '^'):
-                new_node.left_child = last_added
+    for item in arithmetric_expression_list:
+        new_node = Binary_Tree(item)
+        if item in PARENTHESIS:
+            [root, last_added, stack] = resolve_parenthesis(item, stack, root, last_added)
+        elif item in BINARY_OPERATIONS:
+            if item == '+' or item == '-':
+                root = set_left_child(new_node, root)
+                last_added = root
+            else:
                 if root == last_added:
                     root = new_node
                 else:
-                    new_node.parent = last_added.parent
-                    new_node.parent.right_child = new_node
-                last_added.parent = new_node
-                last_added = new_node
-            elif arithmetric_expression_list[i] == '+' or arithmetric_expression_list[i] == '-':
-                new_node.left_child = root
-                root.parent = new_node
-                root = new_node
-                last_added = new_node
-            elif arithmetric_expression_list[i] == '(':
-                stack.append(root)
-                stack.append(last_added)
-                root = None
-                last_added = None
-            elif arithmetric_expression_list[i] == ')':
-                last_added = root
-                node = stack.pop()
-                node.right_child = last_added
-                last_added.parent = node
-                root = stack.pop()
+                    set_right_child(last_added.parent, new_node)
+                last_added = set_left_child(new_node, last_added)
+        else:
+            if root == None:
+                [root, last_added] = [new_node, new_node]
             else:
-                last_added.right_child = new_node
-                new_node.parent = last_added
-                if last_added.value != '^':
-                    last_added = new_node
+                set_right_child(last_added, new_node)
+                if last_added.value != '^': last_added = new_node
     return root
+
+def resolve_parenthesis(item, stack, root, last_added):
+    if item == '(':
+        stack.append(root)
+        stack.append(last_added)
+        [root, last_added] = [None, None]
+    else:
+        node = stack.pop()
+        node.right_child = root
+        root.parent = node
+        last_added = root
+        root = stack.pop()
+    return [root, last_added, stack]
+
+def set_left_child(parent, child):
+    parent.left_child = child
+    child.parent = parent
+    return parent 
+
+def set_right_child(parent, child):
+    parent.right_child = child
+    child.parent = parent
+    return parent
 
 def compute(root):
     if root.value == '+':
