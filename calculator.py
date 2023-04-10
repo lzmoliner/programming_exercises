@@ -42,7 +42,7 @@ def convert_to_list(expression):
     list_expression = []
     for item in expression:
         if item != ' ':
-            if item in BINARY_OPERATIONS:
+            if item in BINARY_OPERATIONS or item in PARENTHESIS:
                 number = include_number(list_expression, number)
                 include_operation(list_expression, item)
             elif item in DIGITS:
