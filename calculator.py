@@ -1,3 +1,5 @@
+import math
+
 class Binary_Tree():
     def __init__(self, value):
         self.value = value
@@ -24,14 +26,33 @@ class Binary_Tree():
         self.value = value
 
 BINARY_OPERATIONS = ('+', '-', '*', '/', '^', '%')
-UNITARY_OPERATIONS = ('log', 'len', 'sqrt', 'sin', 'cos', 'tan')
+UNITARY_OPERATIONS = ('log', 'ln', 'sqrt', 'sin', 'cos', 'tan')
 PARENTHESIS = ('(', ')')
 OPERATIONS = BINARY_OPERATIONS + UNITARY_OPERATIONS + PARENTHESIS
+DIGITS = ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
 
 def calculator(expression):
-    tree = built_binary_tree(string_to_list(expression))
+    tree = built_binary_tree(convert_to_list(expression))
     result = compute(tree)
     return result
+
+def convert_to_list(expression):
+    number = ''
+    operation = ''
+    list_expression = []
+    for item in expression:
+        if item != ' ':
+            if item in BINARY_OPERATIONS:
+                number = include_number(list_expression, number)
+                include_operation(list_expression, item)
+            elif item in DIGITS:
+                operation = include_operation(list_expression, operation)
+                number += item
+            else:
+                number = include_number(list_expression, number)
+                operation += item
+    include_number(list_expression, number)
+    return list_expression
 
 def string_to_list(expression):
     number = ''
@@ -47,53 +68,52 @@ def string_to_list(expression):
     include_number(list_expression, number)
     return list_expression
 
-def include_number(list_expression, number):
-    last_element_in_expression = last_element(list_expression) 
+def include_number(arithmetric_expression, number):
     if len(number) > 0: 
-        if last_element_in_expression == ')':
-            list_expression.append('*')
-        list_expression.append(float(number))
+        last_item = last_element(arithmetric_expression) 
+        if last_item == ')':
+            arithmetric_expression.append('*')
+        arithmetric_expression.append(float(number))
+    return ''
 
-def include_operation(list_expression, operation):
-    last_item_inserted = last_element(list_expression)
-    if operation == '(':
-        if last_item_inserted in ('(', ''):
-            list_expression += [1,'*', '(']
-        elif last_item_inserted in OPERATIONS:
-            list_expression.append('(')
-        else: 
-            list_expression += ['*','(']
-    else:
-        list_expression.append(operation)
+def include_operation(arithmetric_expression, operation):
+    if operation != '':
+        last_added = last_element(arithmetric_expression)
+        if operation == '(':
+            if last_added in ('(', ''):
+                arithmetric_expression += [1,'*']
+            elif last_added not in BINARY_OPERATIONS and last_added not in UNITARY_OPERATIONS:
+                arithmetric_expression += ['*']
+        elif operation in UNITARY_OPERATIONS:
+            if last_added == '' or last_added == '(':
+                arithmetric_expression += [1, '*']
+            elif last_added == ')' or last_added not in OPERATIONS:
+                arithmetric_expression.append('*')
+        arithmetric_expression.append(operation)
+    return ''
 
-def last_element(list_expression):
-    if len(list_expression):
-        return list_expression[len(list_expression) - 1]
+def last_element(arithmetric_expression):
+    if len(arithmetric_expression) > 0:
+        return arithmetric_expression[len(arithmetric_expression) - 1]
     return ''
 
 def built_binary_tree(arithmetric_expression):
-    [root, pivot] = [None, None] 
-    subtrees_stack = []
+    [root, pivot, subtrees_stack] = [None, None, []] 
     for item in arithmetric_expression:
         new_node = Binary_Tree(item)
         if item in PARENTHESIS:
-            if item == '(':
-                [root, pivot, subtrees_stack] = create_subtree(root, pivot, subtrees_stack)
-            else:
-                [root, pivot, subtrees_stack] = conect_subtree(root, pivot, subtrees_stack)
+            if item == '(': [root, pivot, subtrees_stack] = create_subtree(root, pivot, subtrees_stack)
+            else: [root, pivot, subtrees_stack] = conect_subtree(root, pivot, subtrees_stack)
         elif item in BINARY_OPERATIONS:
             if item in ('+', '-'):
                 root = set_left_child(new_node, root)
                 pivot = root
             else:
-                if root == pivot:
-                    root = new_node
-                else:
-                    set_right_child(pivot.parent, new_node)
+                if root == pivot: root = new_node
+                else: set_right_child(pivot.parent, new_node)
                 pivot = set_left_child(new_node, pivot)
         else:
-            if root == None:
-                [root, pivot] = [new_node, new_node]
+            if root == None: [root, pivot] = [new_node, new_node]
             else:
                 set_right_child(pivot, new_node)
                 if pivot.value != '^': pivot = new_node
@@ -133,8 +153,21 @@ def compute(root):
         return  compute(root.left_child) / compute(root.right_child)
     if root.value == '^':
         return pow(compute(root.left_child), compute(root.right_child))
-    else:
-        return root.value
+    if root.value == '%':
+        return compute(root.left_child) * compute(root.right_child)/100
+    if root.value == 'sin':
+        return math.sin(compute(root.right_child))
+    if root.value == 'cos':
+        return math.cos(compute(root.right_child))
+    if root.value == 'tan':
+        return math.tan(compute(root.right_child))
+    if root.value == 'log':
+        return math.log(compute(root.right_child), 10)
+    if root.value == 'ln':
+        return math.log(compute(root.right_child))
+    if root.value == 'sqrt':
+        return math.sqrt(compute(root.right_child))
+    return root.value
 
 def main():
     s = input('Enter the expression to compute: ')
