@@ -42,7 +42,11 @@ def convert_to_list(expression):
     list_expression = []
     for item in expression:
         if item != ' ':
-            if item in BINARY_OPERATIONS or item in PARENTHESIS:
+            if item in PARENTHESIS:
+                number = include_number(list_expression, number)
+                operation = include_operation(list_expression, operation)
+                include_parenthesis(list_expression, item)
+            elif item in BINARY_OPERATIONS:
                 number = include_number(list_expression, number)
                 include_operation(list_expression, item)
             elif item in DIGITS:
@@ -75,6 +79,15 @@ def include_number(arithmetric_expression, number):
             arithmetric_expression.append('*')
         arithmetric_expression.append(float(number))
     return ''
+
+def include_parenthesis(arithmetric_expression, parenthesis):
+    last_added = last_element(arithmetric_expression)
+    if parenthesis == '(':
+        if last_added in ('(', ''):
+            arithmetric_expression += [1,'*']
+        elif last_added not in BINARY_OPERATIONS and last_added not in UNITARY_OPERATIONS:
+            arithmetric_expression += ['*']
+    arithmetric_expression.append(parenthesis)
 
 def include_operation(arithmetric_expression, operation):
     if operation != '':
@@ -116,7 +129,7 @@ def built_binary_tree(arithmetric_expression):
             if root == None: [root, pivot] = [new_node, new_node]
             else:
                 set_right_child(pivot, new_node)
-                if pivot.value != '^': pivot = new_node
+                if pivot.value != '^' and pivot.value not in UNITARY_OPERATIONS: pivot = new_node
     return root
 
 def create_subtree(current_root, current_pivot, subtrees_stack):
