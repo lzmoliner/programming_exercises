@@ -32,56 +32,41 @@ OPERATIONS = BINARY_OPERATIONS + UNITARY_OPERATIONS + PARENTHESIS
 DIGITS = ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
 
 def calculator(expression):
-    tree = built_binary_tree(convert_to_list(expression))
+    arithmetric_expression = convert_to_list(expression)
+    tree = built_binary_tree(arithmetric_expression)
     result = compute(tree)
     return result
 
 def convert_to_list(expression):
-    number = ''
-    operation = ''
-    list_expression = []
+    [number, operation, arithmetric_expression] = ['', '', []]
     for item in expression:
         if item != ' ':
             if item in PARENTHESIS:
-                number = include_number(list_expression, number)
-                operation = include_operation(list_expression, operation)
-                include_parenthesis(list_expression, item)
+                number = include_number(arithmetric_expression, number)
+                operation = include_operation(arithmetric_expression, operation)
+                include_parenthesis(arithmetric_expression, item)
             elif item in BINARY_OPERATIONS:
-                number = include_number(list_expression, number)
-                include_operation(list_expression, item)
+                number = include_number(arithmetric_expression, number)
+                include_operation(arithmetric_expression, item)
             elif item in DIGITS:
-                operation = include_operation(list_expression, operation)
+                operation = include_operation(arithmetric_expression, operation)
                 number += item
             else:
-                number = include_number(list_expression, number)
+                number = include_number(arithmetric_expression, number)
                 operation += item
-    include_number(list_expression, number)
-    return list_expression
-
-def string_to_list(expression):
-    number = ''
-    list_expression = []
-    for item in expression:
-        if item != ' ':
-            if item in OPERATIONS:
-                include_number(list_expression, number)
-                number = ''
-                include_operation(list_expression, item)
-            else:
-                number += item
-    include_number(list_expression, number)
-    return list_expression
+    include_number(arithmetric_expression, number)
+    return arithmetric_expression
 
 def include_number(arithmetric_expression, number):
     if len(number) > 0: 
-        last_item = last_element(arithmetric_expression) 
+        last_item = give_me_the_last(arithmetric_expression) 
         if last_item == ')':
             arithmetric_expression.append('*')
         arithmetric_expression.append(float(number))
     return ''
 
 def include_parenthesis(arithmetric_expression, parenthesis):
-    last_added = last_element(arithmetric_expression)
+    last_added = give_me_the_last(arithmetric_expression)
     if parenthesis == '(':
         if last_added in ('(', ''):
             arithmetric_expression += [1,'*']
@@ -91,7 +76,7 @@ def include_parenthesis(arithmetric_expression, parenthesis):
 
 def include_operation(arithmetric_expression, operation):
     if operation != '':
-        last_added = last_element(arithmetric_expression)
+        last_added = give_me_the_last(arithmetric_expression)
         if operation == '(':
             if last_added in ('(', ''):
                 arithmetric_expression += [1,'*']
@@ -105,7 +90,7 @@ def include_operation(arithmetric_expression, operation):
         arithmetric_expression.append(operation)
     return ''
 
-def last_element(arithmetric_expression):
+def give_me_the_last(arithmetric_expression):
     if len(arithmetric_expression) > 0:
         return arithmetric_expression[len(arithmetric_expression) - 1]
     return ''
