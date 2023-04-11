@@ -128,10 +128,12 @@ def include_operation(arithmetric_expression: list, operation: str) -> None:
         elif last_added not in BINARY_OPERATIONS and last_added not in UNITARY_OPERATIONS:
             arithmetric_expression += ['*']
     elif operation in UNITARY_OPERATIONS:
-        if last_added == '' or last_added == '(':
+        if last_added in ('', '('):
             arithmetric_expression += [1, '*']
         elif last_added == ')' or last_added not in SYMBOLS:
             arithmetric_expression.append('*')
+    elif operation == '-' and last_added in ('(', ''):
+        arithmetric_expression.append(0)
     arithmetric_expression.append(operation)
 
 def give_me_the_last(some_list: list) -> str:
