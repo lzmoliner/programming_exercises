@@ -15,6 +15,20 @@ class BinaryNode():
         self.right_child = None
         self.parent = None
 
+    def set_left_child(self, child):
+        """
+        Set the left child of the current node
+        """
+        self.left_child = child
+        child.parent = self
+
+    def set_right_child(self, child):
+        """
+        Set the right child of the current node
+        """
+        self.right_child = child
+        child.parent = self
+
 BINARY_OPERATIONS = ('+', '-', '*', '/', '^', '%')
 UNITARY_OPERATIONS = ('log', 'ln', 'sqrt', 'sin', 'cos', 'tan')
 PARENTHESIS = ('(', ')')
@@ -165,19 +179,21 @@ def create_binary_tree(arithmetric_expression: list) -> BinaryNode:
                 [root, pivot, subtrees_stack] = conect_subtree(root, subtrees_stack)
         elif item in BINARY_OPERATIONS:
             if item in ('+', '-'):
-                root = set_left_child(new_node, root)
+                new_node.set_left_child(root)
+                root = new_node
                 pivot = root
             else:
                 if root == pivot:
                     root = new_node
                 else:
-                    set_right_child(pivot.parent, new_node)
-                pivot = set_left_child(new_node, pivot)
+                    pivot.parent.set_right_child(new_node)
+                new_node.set_left_child(pivot)
+                pivot = new_node
         else:
             if root is None:
                 root, pivot = new_node, new_node
             else:
-                set_right_child(pivot, new_node)
+                pivot.set_right_child(new_node)
                 if pivot.value != '^' and pivot.value not in UNITARY_OPERATIONS:
                     pivot = new_node
     return root
@@ -208,28 +224,6 @@ def conect_subtree(root: BinaryNode, subtrees_stack: list) -> list:
     new_pivot = root
     new_root = subtrees_stack.pop()
     return [new_root, new_pivot, subtrees_stack]
-
-def set_left_child(parent: BinaryNode, child: BinaryNode) -> BinaryNode:
-    """
-    Returns ...
-    Parameters:
-        parent (BinaryNode) ...
-        childe (BinaryNode) ...
-    """
-    parent.left_child = child
-    child.parent = parent
-    return parent
-
-def set_right_child(parent: BinaryNode, child: BinaryNode) -> BinaryNode:
-    """
-    Returns ...
-    Parameters:
-        parent (BinaryNode) ...
-        childe (BinaryNode) ...
-    """
-    parent.right_child = child
-    child.parent = parent
-    return parent
 
 def compute(root: BinaryNode) -> float:
     """
