@@ -5,34 +5,15 @@ import math
 
 class BinaryNode():
     """
-     BinaryNode class ...
+     Objects of this class contains an atributte value of any type,
+     and atributes left_child, righ_child, parent  also of type BinaryNode.
+     It represent a node of a Binary Tree.
     """
     def __init__(self, value):
         self.value = value
         self.left_child = None
         self.right_child = None
         self.parent = None
-
-    def left_child(self):
-        """
-            returns the left child of the current node
-        """
-        return self.left_child
-    def right_child(self):
-        return self.righ_child
-    def parent(self):
-        return self.parent
-    def value(self):
-        return self.value
-
-    def left_child(self, node):
-        self.left_child = node
-    def right_child(self, node):
-        self.righ_child = node
-    def parent(self, node):
-        self.parent = node
-    def value(self, value):
-        self.value = value
 
 BINARY_OPERATIONS = ('+', '-', '*', '/', '^', '%')
 UNITARY_OPERATIONS = ('log', 'ln', 'sqrt', 'sin', 'cos', 'tan')
