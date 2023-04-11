@@ -1,33 +1,9 @@
 """
-calculator ...
+The main method here is caclulator that recive an artihmetric expression as string
+and returns its evaluation
 """
 import math
-
-class BinaryNode():
-    """
-     Objects of this class contains an atributte value of any type,
-     and atributes left_child, righ_child, parent  also of type BinaryNode.
-     It represent a node of a Binary Tree.
-    """
-    def __init__(self, value):
-        self.value = value
-        self.left_child = None
-        self.right_child = None
-        self.parent = None
-
-    def set_left_child(self, child):
-        """
-        Set the left child of the current node
-        """
-        self.left_child = child
-        child.parent = self
-
-    def set_right_child(self, child):
-        """
-        Set the right child of the current node
-        """
-        self.right_child = child
-        child.parent = self
+from binary_node import BinaryNode
 
 BINARY_OPERATIONS = ('+', '-', '*', '/', '^', '%')
 UNITARY_OPERATIONS = ('log', 'ln', 'sqrt', 'sin', 'cos', 'tan')
