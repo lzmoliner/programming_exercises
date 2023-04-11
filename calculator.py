@@ -77,11 +77,11 @@ def remove_whitespace(expression: str) -> str:
     Parameters:
         expression (str)
     """
-    result = ''
+    edited_expression = ''
     for item in expression:
         if item !=' ':
-            result += item
-    return result
+            edited_expression += item
+    return edited_expression
 
 def include_number(arithmetric_expression: list, number: float) -> None:
     """
@@ -237,31 +237,50 @@ def compute(root: BinaryNode) -> float:
     Paramteres:
         root (BinaryNode): Root of an Binary Tree.
     """
-    if root.value == '+':
-        return compute(root.left_child) + compute(root.right_child)
-    if root.value == '-':
-        return compute(root.left_child) - compute(root.right_child)
-    if root.value == '*':
-        return compute(root.left_child) * compute(root.right_child)
-    if root.value == '/':
-        return  compute(root.left_child) / compute(root.right_child)
-    if root.value == '^':
-        return pow(compute(root.left_child), compute(root.right_child))
-    if root.value == '%':
-        return compute(root.left_child) * compute(root.right_child)/100
-    if root.value == 'sin':
-        return math.sin(compute(root.right_child))
-    if root.value == 'cos':
-        return math.cos(compute(root.right_child))
-    if root.value == 'tan':
-        return math.tan(compute(root.right_child))
-    if root.value == 'log':
-        return math.log(compute(root.right_child), 10)
-    if root.value == 'ln':
-        return math.log(compute(root.right_child))
-    if root.value == 'sqrt':
-        return math.sqrt(compute(root.right_child))
-    return root.value
+    result =  0
+    if root.value in BINARY_OPERATIONS:
+        result = bi_operation(compute(root.left_child), compute(root.right_child), root.value)
+    elif root.value in UNITARY_OPERATIONS:
+        result = uni_operation(compute(root.right_child), root.value)
+    else:
+        result = root.value
+    return result
+
+def bi_operation(value_1: float, value_2: float, operation: str) -> float:
+    """
+    Returns the evaluation of the operation to value_1 and value_2
+    """
+    if operation == '+':
+        result = value_1 + value_2
+    elif operation == '-':
+        result = value_1 - value_2
+    elif operation == '*':
+        result = value_1 * value_2
+    elif operation == '/':
+        result = value_1 / value_2
+    elif operation == '^':
+        result =  pow(value_1, value_2)
+    else:
+        result = value_1 * value_2/100
+    return result
+
+def uni_operation(value: float, operation: str) -> float:
+    """
+    Returns the evaluation of the operation to the value
+    """
+    if operation == 'sin':
+        result = math.sin(value)
+    elif operation == 'cos':
+        result = math.cos(value)
+    elif operation == 'tan':
+        result = math.tan(value)
+    elif operation == 'log':
+        result = math.log(value, 10)
+    elif operation == 'ln':
+        result = math.log(value)
+    else:
+        result = math.sqrt(value)
+    return result
 
 def main():
     """
