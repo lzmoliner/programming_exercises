@@ -31,13 +31,13 @@ PARENTHESIS = ('(', ')')
 SYMBOLS = BINARY_OPERATIONS + UNITARY_OPERATIONS + PARENTHESIS
 DIGITS = ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
 
-def calculator(expression):
+def calculator(expression: str) -> float:
     arithmetric_expression = convert_to_list(expression)
     tree = create_binary_tree(arithmetric_expression)
     result = compute(tree)
     return result
 
-def convert_to_list(expression):
+def convert_to_list(expression: str) -> list:
     number, operation, arithmetric_expression = '', '', []
     for item in expression:
         if item != ' ':
@@ -57,7 +57,7 @@ def convert_to_list(expression):
     include_number(arithmetric_expression, number)
     return arithmetric_expression
 
-def include_number(arithmetric_expression, number):
+def include_number(arithmetric_expression: list, number: str) -> str:
     if len(number) > 0: 
         last_item = give_me_the_last(arithmetric_expression) 
         if last_item == ')':
@@ -65,7 +65,7 @@ def include_number(arithmetric_expression, number):
         arithmetric_expression.append(float(number))
     return ''
 
-def include_parenthesis(arithmetric_expression, parenthesis):
+def include_parenthesis(arithmetric_expression: list, parenthesis: str):
     last_added = give_me_the_last(arithmetric_expression)
     if parenthesis == '(':
         if last_added in ('(', ''):
@@ -74,7 +74,7 @@ def include_parenthesis(arithmetric_expression, parenthesis):
             arithmetric_expression += ['*']
     arithmetric_expression.append(parenthesis)
 
-def include_operation(arithmetric_expression, operation):
+def include_operation(arithmetric_expression: list, operation: str) -> str:
     if operation != '':
         last_added = give_me_the_last(arithmetric_expression)
         if operation == '(':
@@ -90,12 +90,12 @@ def include_operation(arithmetric_expression, operation):
         arithmetric_expression.append(operation)
     return ''
 
-def give_me_the_last(arithmetric_expression):
+def give_me_the_last(arithmetric_expression: list) -> str:
     if len(arithmetric_expression) > 0:
         return arithmetric_expression[len(arithmetric_expression) - 1]
     return ''
 
-def create_binary_tree(arithmetric_expression):
+def create_binary_tree(arithmetric_expression: list) -> Binary_Node:
     root, pivot, subtrees_stack = None, None, []
     for item in arithmetric_expression:
         new_node = Binary_Node(item)
@@ -117,12 +117,12 @@ def create_binary_tree(arithmetric_expression):
                 if pivot.value != '^' and pivot.value not in UNITARY_OPERATIONS: pivot = new_node
     return root
 
-def create_subtree(current_root, current_pivot, subtrees_stack):
+def create_subtree(current_root: Binary_Node, current_pivot: Binary_Node, subtrees_stack: list) -> list:
     subtrees_stack.append(current_root)
     subtrees_stack.append(current_pivot)
     return [None, None, subtrees_stack]
 
-def conect_subtree(current_root, current_pivot, subtrees_stack):
+def conect_subtree(current_root: Binary_Node, current_pivot: Binary_Node, subtrees_stack: list) -> list: 
     node = subtrees_stack.pop()
     node.right_child = current_root
     current_root.parent = node
@@ -130,17 +130,17 @@ def conect_subtree(current_root, current_pivot, subtrees_stack):
     new_root = subtrees_stack.pop()
     return [new_root, new_pivot, subtrees_stack]
 
-def set_left_child(parent, child):
+def set_left_child(parent: Binary_Node, child: Binary_Node) -> Binary_Node:
     parent.left_child = child
     child.parent = parent
     return parent 
 
-def set_right_child(parent, child):
+def set_right_child(parent: Binary_Node, child: Binary_Node) -> Binary_Node:
     parent.right_child = child
     child.parent = parent
     return parent
 
-def compute(root):
+def compute(root: Binary_Node) -> float:
     if root.value == '+':
         return compute(root.left_child) + compute(root.right_child)
     if root.value == '-':
