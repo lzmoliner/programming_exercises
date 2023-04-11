@@ -41,35 +41,47 @@ def convert_to_list(expression: str) -> list:
         A list that contains (separately) the numbers and operations inside the expression 
         passed as parameter
     """
+    edited_expression = remove_whitespace(expression)
     number, operation, arithmetric_expression = '', '', []
-    for item in expression:
-        if item != ' ':
-            if item in PARENTHESIS:
-                if number != '':
-                    include_number(arithmetric_expression, float(number))
-                    number = ''
-                if operation != '':
-                    include_operation(arithmetric_expression, operation)
-                    number, operation = '', ''
-                include_parenthesis(arithmetric_expression, item)
-            elif item in BINARY_OPERATIONS:
-                if number != '':
-                    include_number(arithmetric_expression,float(number))
-                    number = ''
-                include_operation(arithmetric_expression, item)
-            elif item in DIGITS:
-                if operation != '':
-                    include_operation(arithmetric_expression, operation)
-                    operation = ''
-                number += item
-            else:
-                if number != '':
-                    include_number(arithmetric_expression, float(number))
-                    number = ''
-                operation += item
+    for item in edited_expression:
+        if item in PARENTHESIS:
+            if number != '':
+                include_number(arithmetric_expression, float(number))
+                number = ''
+            if operation != '':
+                include_operation(arithmetric_expression, operation)
+                number, operation = '', ''
+            include_parenthesis(arithmetric_expression, item)
+        elif item in BINARY_OPERATIONS:
+            if number != '':
+                include_number(arithmetric_expression,float(number))
+                number = ''
+            include_operation(arithmetric_expression, item)
+        elif item in DIGITS:
+            if operation != '':
+                include_operation(arithmetric_expression, operation)
+                operation = ''
+            number += item
+        else:
+            if number != '':
+                include_number(arithmetric_expression, float(number))
+                number = ''
+            operation += item
     if number != '':
         include_number(arithmetric_expression, float(number))
     return arithmetric_expression
+
+def remove_whitespace(expression: str) -> str:
+    """
+    Returns a version of the given string without whitespaces
+    Parameters:
+        expression (str)
+    """
+    result = ''
+    for item in expression:
+        if item !=' ':
+            result += item
+    return result
 
 def include_number(arithmetric_expression: list, number: float) -> None:
     """
