@@ -1,6 +1,6 @@
 import math
 
-class Binary_Tree():
+class Binary_Node():
     def __init__(self, value):
         self.value = value
         self.left_child = None
@@ -28,17 +28,17 @@ class Binary_Tree():
 BINARY_OPERATIONS = ('+', '-', '*', '/', '^', '%')
 UNITARY_OPERATIONS = ('log', 'ln', 'sqrt', 'sin', 'cos', 'tan')
 PARENTHESIS = ('(', ')')
-OPERATIONS = BINARY_OPERATIONS + UNITARY_OPERATIONS + PARENTHESIS
+SYMBOLS = BINARY_OPERATIONS + UNITARY_OPERATIONS + PARENTHESIS
 DIGITS = ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
 
 def calculator(expression):
     arithmetric_expression = convert_to_list(expression)
-    tree = built_binary_tree(arithmetric_expression)
+    tree = create_binary_tree(arithmetric_expression)
     result = compute(tree)
     return result
 
 def convert_to_list(expression):
-    [number, operation, arithmetric_expression] = ['', '', []]
+    number, operation, arithmetric_expression = '', '', []
     for item in expression:
         if item != ' ':
             if item in PARENTHESIS:
@@ -85,7 +85,7 @@ def include_operation(arithmetric_expression, operation):
         elif operation in UNITARY_OPERATIONS:
             if last_added == '' or last_added == '(':
                 arithmetric_expression += [1, '*']
-            elif last_added == ')' or last_added not in OPERATIONS:
+            elif last_added == ')' or last_added not in SYMBOLS:
                 arithmetric_expression.append('*')
         arithmetric_expression.append(operation)
     return ''
@@ -95,10 +95,10 @@ def give_me_the_last(arithmetric_expression):
         return arithmetric_expression[len(arithmetric_expression) - 1]
     return ''
 
-def built_binary_tree(arithmetric_expression):
-    [root, pivot, subtrees_stack] = [None, None, []] 
+def create_binary_tree(arithmetric_expression):
+    root, pivot, subtrees_stack = None, None, []
     for item in arithmetric_expression:
-        new_node = Binary_Tree(item)
+        new_node = Binary_Node(item)
         if item in PARENTHESIS:
             if item == '(': [root, pivot, subtrees_stack] = create_subtree(root, pivot, subtrees_stack)
             else: [root, pivot, subtrees_stack] = conect_subtree(root, pivot, subtrees_stack)
@@ -111,7 +111,7 @@ def built_binary_tree(arithmetric_expression):
                 else: set_right_child(pivot.parent, new_node)
                 pivot = set_left_child(new_node, pivot)
         else:
-            if root == None: [root, pivot] = [new_node, new_node]
+            if root == None: root, pivot = new_node, new_node
             else:
                 set_right_child(pivot, new_node)
                 if pivot.value != '^' and pivot.value not in UNITARY_OPERATIONS: pivot = new_node
