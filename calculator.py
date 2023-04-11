@@ -1,6 +1,12 @@
+"""
+calculator ...
+"""
 import math
 
-class Binary_Node():
+class BinaryNode():
+    """
+     BinaryNode class ...
+    """
     def __init__(self, value):
         self.value = value
         self.left_child = None
@@ -8,6 +14,9 @@ class Binary_Node():
         self.parent = None
 
     def left_child(self):
+        """
+            returns the left child of the current node
+        """
         return self.left_child
     def right_child(self):
         return self.righ_child
@@ -32,40 +41,78 @@ SYMBOLS = BINARY_OPERATIONS + UNITARY_OPERATIONS + PARENTHESIS
 DIGITS = ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
 
 def calculator(expression: str) -> float:
+    """
+    Parameters:
+        expression (str): An arithmetric expression to compute
+    Returns:
+        The computed value of the arithmetric expression passed as parameter
+    """
     arithmetric_expression = convert_to_list(expression)
     tree = create_binary_tree(arithmetric_expression)
     result = compute(tree)
     return result
 
 def convert_to_list(expression: str) -> list:
+    """
+    Parameters:
+        expression(str): An arithmetic expression
+    Returns:
+        A list that contains (separately) the numbers and operations inside the expression 
+        passed as parameter
+    """
     number, operation, arithmetric_expression = '', '', []
     for item in expression:
         if item != ' ':
             if item in PARENTHESIS:
-                number = include_number(arithmetric_expression, number)
-                operation = include_operation(arithmetric_expression, operation)
+                if number != '':
+                    include_number(arithmetric_expression, float(number))
+                    number = ''
+                if operation != '':
+                    include_operation(arithmetric_expression, operation)
+                    number, operation = '', ''
                 include_parenthesis(arithmetric_expression, item)
             elif item in BINARY_OPERATIONS:
-                number = include_number(arithmetric_expression, number)
+                if number != '':
+                    include_number(arithmetric_expression,float(number))
+                    number = ''
                 include_operation(arithmetric_expression, item)
             elif item in DIGITS:
-                operation = include_operation(arithmetric_expression, operation)
+                if operation != '':
+                    include_operation(arithmetric_expression, operation)
+                    operation = ''
                 number += item
             else:
-                number = include_number(arithmetric_expression, number)
+                if number != '':
+                    include_number(arithmetric_expression, float(number))
+                    number = ''
                 operation += item
-    include_number(arithmetric_expression, number)
+    if number != '':
+        include_number(arithmetric_expression, float(number))
     return arithmetric_expression
 
-def include_number(arithmetric_expression: list, number: str) -> str:
-    if len(number) > 0: 
-        last_item = give_me_the_last(arithmetric_expression) 
-        if last_item == ')':
-            arithmetric_expression.append('*')
-        arithmetric_expression.append(float(number))
-    return ''
+def include_number(arithmetric_expression: list, number: float) -> None:
+    """
+    Include the number into the arithmetric_expression
+    Parameters:
+        arithmetric_expression (list): An arithmetric espression
+        number (str): A number as string
+    Returns: the string '' 
+    """
+    last_item = give_me_the_last(arithmetric_expression)
+    if last_item == ')':
+        arithmetric_expression.append('*')
+    arithmetric_expression.append(number)
 
-def include_parenthesis(arithmetric_expression: list, parenthesis: str):
+def include_parenthesis(arithmetric_expression: list, parenthesis: str) -> None:
+    """
+    Include the parenthesis passed as the second parameter at the end of the 
+    arithmetric expression passed in the first parameteres. Some 1 and *
+    could be added before depending the last element in the arithmetric expression
+
+    Paremeters:
+        arithmetric_expression (list): An arithmetric expression
+        parenthesis (str): A parenthesis
+    """
     last_added = give_me_the_last(arithmetric_expression)
     if parenthesis == '(':
         if last_added in ('(', ''):
@@ -74,73 +121,127 @@ def include_parenthesis(arithmetric_expression: list, parenthesis: str):
             arithmetric_expression += ['*']
     arithmetric_expression.append(parenthesis)
 
-def include_operation(arithmetric_expression: list, operation: str) -> str:
-    if operation != '':
-        last_added = give_me_the_last(arithmetric_expression)
-        if operation == '(':
-            if last_added in ('(', ''):
-                arithmetric_expression += [1,'*']
-            elif last_added not in BINARY_OPERATIONS and last_added not in UNITARY_OPERATIONS:
-                arithmetric_expression += ['*']
-        elif operation in UNITARY_OPERATIONS:
-            if last_added == '' or last_added == '(':
-                arithmetric_expression += [1, '*']
-            elif last_added == ')' or last_added not in SYMBOLS:
-                arithmetric_expression.append('*')
-        arithmetric_expression.append(operation)
+def include_operation(arithmetric_expression: list, operation: str) -> None:
+    """
+    Include an arithmetric operation to the end of an artihmetric expession
+    Parameters:
+        arithmetric_expression (list): An arithmetric expression
+        operation (str): an arithmetric operation
+    """
+    last_added = give_me_the_last(arithmetric_expression)
+    if operation == '(':
+        if last_added in ('(', ''):
+            arithmetric_expression += [1,'*']
+        elif last_added not in BINARY_OPERATIONS and last_added not in UNITARY_OPERATIONS:
+            arithmetric_expression += ['*']
+    elif operation in UNITARY_OPERATIONS:
+        if last_added == '' or last_added == '(':
+            arithmetric_expression += [1, '*']
+        elif last_added == ')' or last_added not in SYMBOLS:
+            arithmetric_expression.append('*')
+    arithmetric_expression.append(operation)
+
+def give_me_the_last(some_list: list) -> str:
+    """
+        Returns the last element in a list. In case the list to be empty
+        returns ''
+        Parameteres:
+            some_list (list)
+    """
+    if len(some_list) > 0:
+        return some_list[len(some_list) - 1]
     return ''
 
-def give_me_the_last(arithmetric_expression: list) -> str:
-    if len(arithmetric_expression) > 0:
-        return arithmetric_expression[len(arithmetric_expression) - 1]
-    return ''
-
-def create_binary_tree(arithmetric_expression: list) -> Binary_Node:
+def create_binary_tree(arithmetric_expression: list) -> BinaryNode:
+    """
+    Return the root of a binary tree that contains the arithmetric expression passesd as
+    first parameters. The numbers are the leaf of the tree and the operations the
+    internals node. 
+    Parameters:
+        arithmetric_expression (list): An arithmetric expression
+    """
     root, pivot, subtrees_stack = None, None, []
     for item in arithmetric_expression:
-        new_node = Binary_Node(item)
+        new_node = BinaryNode(item)
         if item in PARENTHESIS:
-            if item == '(': [root, pivot, subtrees_stack] = create_subtree(root, pivot, subtrees_stack)
-            else: [root, pivot, subtrees_stack] = conect_subtree(root, pivot, subtrees_stack)
+            if item == '(':
+                [root, pivot, subtrees_stack] = create_subtree(root, pivot, subtrees_stack)
+            else:
+                [root, pivot, subtrees_stack] = conect_subtree(root, subtrees_stack)
         elif item in BINARY_OPERATIONS:
             if item in ('+', '-'):
                 root = set_left_child(new_node, root)
                 pivot = root
             else:
-                if root == pivot: root = new_node
-                else: set_right_child(pivot.parent, new_node)
+                if root == pivot:
+                    root = new_node
+                else:
+                    set_right_child(pivot.parent, new_node)
                 pivot = set_left_child(new_node, pivot)
         else:
-            if root == None: root, pivot = new_node, new_node
+            if root is None:
+                root, pivot = new_node, new_node
             else:
                 set_right_child(pivot, new_node)
-                if pivot.value != '^' and pivot.value not in UNITARY_OPERATIONS: pivot = new_node
+                if pivot.value != '^' and pivot.value not in UNITARY_OPERATIONS:
+                    pivot = new_node
     return root
 
-def create_subtree(current_root: Binary_Node, current_pivot: Binary_Node, subtrees_stack: list) -> list:
-    subtrees_stack.append(current_root)
-    subtrees_stack.append(current_pivot)
+def create_subtree(root: BinaryNode, pivot: BinaryNode, subtrees_stack: list) -> list:
+    """
+        Store in the root and the pivot ...
+        Parameters:
+            current_root (BinaryNode):
+            current_pivot (BinaryNode):
+            subtrees_stack (list):
+    """
+    subtrees_stack.append(root)
+    subtrees_stack.append(pivot)
     return [None, None, subtrees_stack]
 
-def conect_subtree(current_root: Binary_Node, current_pivot: Binary_Node, subtrees_stack: list) -> list: 
+def conect_subtree(root: BinaryNode, subtrees_stack: list) -> list:
+    """
+    Rerturns a list that  contains ...
+    Parameters:
+        root (BinaryNode):
+        subtrees_stack (list)
+
+    """
     node = subtrees_stack.pop()
-    node.right_child = current_root
-    current_root.parent = node
-    new_pivot = current_root
+    node.right_child = root
+    root.parent = node
+    new_pivot = root
     new_root = subtrees_stack.pop()
     return [new_root, new_pivot, subtrees_stack]
 
-def set_left_child(parent: Binary_Node, child: Binary_Node) -> Binary_Node:
+def set_left_child(parent: BinaryNode, child: BinaryNode) -> BinaryNode:
+    """
+    Returns ...
+    Parameters:
+        parent (BinaryNode) ...
+        childe (BinaryNode) ...
+    """
     parent.left_child = child
     child.parent = parent
-    return parent 
+    return parent
 
-def set_right_child(parent: Binary_Node, child: Binary_Node) -> Binary_Node:
+def set_right_child(parent: BinaryNode, child: BinaryNode) -> BinaryNode:
+    """
+    Returns ...
+    Parameters:
+        parent (BinaryNode) ...
+        childe (BinaryNode) ...
+    """
     parent.right_child = child
     child.parent = parent
     return parent
 
-def compute(root: Binary_Node) -> float:
+def compute(root: BinaryNode) -> float:
+    """
+    Compute an arithmetric expression stored inside a Binary Tree.
+    Paramteres:
+        root (BinaryNode): Root of an Binary Tree.
+    """
     if root.value == '+':
         return compute(root.left_child) + compute(root.right_child)
     if root.value == '-':
@@ -168,9 +269,12 @@ def compute(root: Binary_Node) -> float:
     return root.value
 
 def main():
-    s = input('Enter the expression to compute: ')
-    result = calculator(s)
-    print(result)    
+    """
+    Input from the user an arithmetric expression to compute.
+    """
+    expression = input('Enter the expression to compute: ')
+    result = calculator(expression)
+    print(result)
 
 if __name__ == '__main__':
     main()
