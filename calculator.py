@@ -216,14 +216,14 @@ def compute(root: BinaryNode) -> float:
     """
     result =  0
     if root.value in BINARY_OPERATIONS:
-        result = compute_bi_operation(compute(root.left_child), compute(root.right_child), root.value)
+        result = bi_operation(compute(root.left_child), compute(root.right_child), root.value)
     elif root.value in UNITARY_OPERATIONS:
         result = uni_operation(compute(root.right_child), root.value)
     else:
         result = root.value
     return result
 
-def compute_bi_operation(value_1: float, value_2: float, operation: str) -> float:
+def bi_operation(value_1: float, value_2: float, operation: str) -> float:
     """
     Returns the evaluation of the operation to value_1 and value_2
     """
