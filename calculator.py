@@ -28,37 +28,25 @@ def convert_to_list(expression: str) -> list:
     Parameters:
         expression(str): An arithmetic expression
     Returns:
-        A list that contains (separately) the numbers and operations inside the expression 
-        passed as parameter
+        A list that contains the numbers and operations inside the expression 
     """
     edited_expression = remove_whitespace(expression)
     number, operation, arithmetric_expression = '', '', []
     for item in edited_expression:
         if item in PARENTHESIS:
-            if number != '':
-                include_number(arithmetric_expression, float(number))
-                number = ''
-            if operation != '':
-                include_operation(arithmetric_expression, operation)
-                number, operation = '', ''
+            number = include_number(arithmetric_expression, number)
+            operation = include_operation(arithmetric_expression, operation)
             include_parenthesis(arithmetric_expression, item)
         elif item in BINARY_OPERATIONS:
-            if number != '':
-                include_number(arithmetric_expression,float(number))
-                number = ''
+            number = include_number(arithmetric_expression, number)
             include_operation(arithmetric_expression, item)
-        elif item in DIGITS:
-            if operation != '':
-                include_operation(arithmetric_expression, operation)
-                operation = ''
+        elif item in DIGITS or item == '.':
+            operation = include_operation(arithmetric_expression, operation)
             number += item
         else:
-            if number != '':
-                include_number(arithmetric_expression, float(number))
-                number = ''
+            number = include_number(arithmetric_expression, number)
             operation += item
-    if number != '':
-        include_number(arithmetric_expression, float(number))
+    include_number(arithmetric_expression, number)
     return arithmetric_expression
 
 def remove_whitespace(expression: str) -> str:
@@ -73,18 +61,20 @@ def remove_whitespace(expression: str) -> str:
             edited_expression += item
     return edited_expression
 
-def include_number(arithmetric_expression: list, number: float) -> None:
+def include_number(arithmetric_expression: list, number: str) -> str:
     """
     Include the number into the arithmetric_expression
     Parameters:
         arithmetric_expression (list): An arithmetric espression
         number (str): A number as string
-    Returns: the string '' 
+    Returns: the empty string 
     """
-    last_item = give_me_the_last(arithmetric_expression)
-    if last_item == ')':
-        arithmetric_expression.append('*')
-    arithmetric_expression.append(number)
+    if number != '':    
+        last_item = give_me_the_last(arithmetric_expression)
+        if last_item == ')':
+            arithmetric_expression.append('*')
+        arithmetric_expression.append(float(number))
+    return ''
 
 def include_parenthesis(arithmetric_expression: list, parenthesis: str) -> None:
     """
@@ -104,32 +94,30 @@ def include_parenthesis(arithmetric_expression: list, parenthesis: str) -> None:
             arithmetric_expression += ['*']
     arithmetric_expression.append(parenthesis)
 
-def include_operation(arithmetric_expression: list, operation: str) -> None:
+def include_operation(arithmetric_expression: list, operation: str) -> str:
     """
     Include an arithmetric operation to the end of an artihmetric expession
     Parameters:
         arithmetric_expression (list): An arithmetric expression
         operation (str): an arithmetric operation
+    Returns: the empty string
     """
-    last_added = give_me_the_last(arithmetric_expression)
-    if operation == '(':
-        if last_added in ('(', ''):
-            arithmetric_expression += [1,'*']
-        elif last_added not in BINARY_OPERATIONS and last_added not in UNITARY_OPERATIONS:
-            arithmetric_expression += ['*']
-    elif operation in UNITARY_OPERATIONS:
-        if last_added in ('', '('):
-            arithmetric_expression += [1, '*']
-        elif last_added == ')' or last_added not in SYMBOLS:
-            arithmetric_expression.append('*')
-    elif operation == '-' and last_added in ('(', ''):
-        arithmetric_expression.append(0)
-    arithmetric_expression.append(operation)
+    if operation != '':
+        last_added = give_me_the_last(arithmetric_expression)
+        if operation in UNITARY_OPERATIONS:
+            if last_added in ('', '('):
+                arithmetric_expression += [1, '*']
+            elif last_added == ')' or last_added not in SYMBOLS:
+                arithmetric_expression.append('*')
+        elif operation == '-' and last_added in ('(', ''):
+            arithmetric_expression.append(0)
+        arithmetric_expression.append(operation)
+    return ''
 
 def give_me_the_last(some_list: list) -> str:
     """
-        Returns the last element in a list. In case the list to be empty
-        returns ''
+        Returns: the last element in a list. In case the list to be empty
+        returns the empty string
         Parameteres:
             some_list (list)
     """
@@ -140,7 +128,7 @@ def give_me_the_last(some_list: list) -> str:
 def create_binary_tree(arithmetric_expression: list) -> BinaryNode:
     """
     Return the root of a binary tree that contains the arithmetric expression passesd as
-    first parameters. The numbers are the leaf of the tree and the operations the
+    first parameters. The numbers are in the leaf of the tree and the operations the
     internals node. 
     Parameters:
         arithmetric_expression (list): An arithmetric expression
@@ -154,25 +142,44 @@ def create_binary_tree(arithmetric_expression: list) -> BinaryNode:
             else:
                 [root, pivot, subtrees_stack] = conect_subtree(root, subtrees_stack)
         elif item in BINARY_OPERATIONS:
-            if item in ('+', '-'):
-                new_node.set_left_child(root)
-                root = new_node
-                pivot = root
-            else:
-                if root == pivot:
-                    root = new_node
-                else:
-                    pivot.parent.set_right_child(new_node)
-                new_node.set_left_child(pivot)
-                pivot = new_node
+            [root, pivot] = add_bi_operation(root, pivot, new_node, item)
         else:
-            if root is None:
-                root, pivot = new_node, new_node
-            else:
-                pivot.set_right_child(new_node)
-                if pivot.value != '^' and pivot.value not in UNITARY_OPERATIONS:
-                    pivot = new_node
+            [root, pivot] = add_number_or_uni_opeartion(root, pivot, new_node)
     return root
+
+def add_bi_operation(root: BinaryNode, pivot: BinaryNode, node: BinaryNode, operation: str) -> list:
+    """
+    To be written ...
+    """
+    if operation in ('+', '-'):
+        node.set_left_child(root)
+        new_root = node
+        new_pivot = new_root
+    else:
+        if root == pivot:
+            new_root = node
+        else:
+            pivot.parent.set_right_child(node)
+            new_root = root
+        node.set_left_child(pivot)
+        new_pivot = node
+    return [new_root, new_pivot]
+
+def add_number_or_uni_opeartion(root: BinaryNode, pivot: BinaryNode, node: BinaryNode) -> list:
+    """
+    To be written ...
+    """
+    if root is None:
+        new_root, new_pivot = node, node
+    else:
+        pivot.set_right_child(node)
+        if pivot.value != '^' and pivot.value not in UNITARY_OPERATIONS:
+            new_pivot = node
+        else:
+            new_pivot = pivot
+        new_root = root
+    return [new_root, new_pivot]
+
 
 def create_subtree(root: BinaryNode, pivot: BinaryNode, subtrees_stack: list) -> list:
     """
@@ -209,14 +216,14 @@ def compute(root: BinaryNode) -> float:
     """
     result =  0
     if root.value in BINARY_OPERATIONS:
-        result = bi_operation(compute(root.left_child), compute(root.right_child), root.value)
+        result = compute_bi_operation(compute(root.left_child), compute(root.right_child), root.value)
     elif root.value in UNITARY_OPERATIONS:
         result = uni_operation(compute(root.right_child), root.value)
     else:
         result = root.value
     return result
 
-def bi_operation(value_1: float, value_2: float, operation: str) -> float:
+def compute_bi_operation(value_1: float, value_2: float, operation: str) -> float:
     """
     Returns the evaluation of the operation to value_1 and value_2
     """
