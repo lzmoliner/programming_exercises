@@ -42,10 +42,10 @@ def convert_to_list(expression: str) -> list:
             include_operation(arithmetric_expression, item)
         elif item in DIGITS or item == '.':
             operation = include_operation(arithmetric_expression, operation)
-            number += item
+            number = update_number(number, item)
         else:
             number = include_number(arithmetric_expression, number)
-            operation += item
+            operation = update_operation(operation, item)
     include_number(arithmetric_expression, number)
     return arithmetric_expression
 
@@ -69,7 +69,7 @@ def include_number(arithmetric_expression: list, number: str) -> str:
         number (str): A number as string
     Returns: the empty string 
     """
-    if number != '':    
+    if number != '':
         last_item = give_me_the_last(arithmetric_expression)
         if last_item == ')':
             arithmetric_expression.append('*')
@@ -124,6 +124,18 @@ def give_me_the_last(some_list: list) -> str:
     if len(some_list) > 0:
         return some_list[len(some_list) - 1]
     return ''
+
+def update_number(number: str, character: str) -> str:
+    """
+        To be written
+    """
+    return number + character
+
+def update_operation(operation: str, character: str) -> str:
+    """
+    To be written
+    """
+    return operation + character
 
 def create_binary_tree(arithmetric_expression: list) -> BinaryNode:
     """
